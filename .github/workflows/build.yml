@@ -1,24 +1,31 @@
 name: Build IPA
+
 on:
   workflow_dispatch:
   push:
     branches: [main]
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
+
       - name: 🏗 Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
       - name: 🏗 Setup EAS
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
+
       - name: 📦 Install dependencies
         run: npm install
-      - name: 🚀 Build IPA
-        run: eas build --platform ios --profile production --non-interactive
+
+      - name: 🚀 Trigger EAS iOS Build (cloud)
+        run: eas build --platform ios --profile production --non-interactive --no-wait
