@@ -10,36 +10,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🏗 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🏗 Setup Node
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "npm"
 
-      - name: 🏗 Setup EAS
+      - name: Setup EAS
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.SOMETHING_HERE }}
 
-      - name: 📦 Install dependencies
+      - name: Install dependencies
         run: npm ci
 
-      - name: � Check Token Configuration
+      - name: Check Token Configuration
         run: |
           if [ -z "$EXPO_TOKEN" ]; then
-            echo "❌ ERROR: EXPO_TOKEN secret is MISSING in GitHub Settings!"
+            echo "ERROR: EXPO_TOKEN secret is MISSING in GitHub Settings!"
             exit 1
           else
-            echo "✅ EXPO_TOKEN is present."
+            echo "EXPO_TOKEN is present."
           fi
         env:
           EXPO_TOKEN: ${{ secrets.SOMETHING_HERE }}
 
-      - name: �🚀 Trigger EAS iOS Build (cloud)
-        run: eas build --platform ios --profile simulator --non-interactive --no-wait
+      - name: trigger EAS iOS Build (cloud)
+        run: eas build --platform ios --profile preview --non-interactive --no-wait
         env:
           EXPO_TOKEN: ${{ secrets.SOMETHING_HERE }}
