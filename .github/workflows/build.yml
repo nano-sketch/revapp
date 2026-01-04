@@ -1,4 +1,4 @@
-name: Build IPA
+name: Build Unsigned IPA
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: Checkout repository
@@ -19,27 +19,39 @@ jobs:
           node-version: 20
           cache: "npm"
 
-      - name: Setup EAS
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Expo
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.SOMETHING_HERE }}
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Prebuild iOS
+        run: npx expo prebuild --platform ios
 
-      - name: Check Token Configuration
+      - name: Build Unsigned App
         run: |
-          if [ -z "$EXPO_TOKEN" ]; then
-            echo "ERROR: EXPO_TOKEN secret is MISSING in GitHub Settings!"
-            exit 1
-          else
-            echo "EXPO_TOKEN is present."
-          fi
-        env:
-          EXPO_TOKEN: ${{ secrets.SOMETHING_HERE }}
+          xcodebuild -workspace ios/*.xcworkspace \
+            -scheme $(ls ios/*.xcworkspace | xargs basename -s .xcworkspace) \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
 
-      - name: trigger EAS iOS Build (cloud)
-        run: eas build --platform ios --profile preview --non-interactive --no-wait
-        env:
-          EXPO_TOKEN: ${{ secrets.SOMETHING_HERE }}
+      - name: Create IPA
+        run: |
+          mkdir -p Payload
+          cp -r build/Build/Products/Release-iphoneos/*.app Payload/
+          zip -r build.ipa Payload
+          mv build.ipa RevApp-unsigned.ipa
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: RevApp-unsigned-ipa
+          path: RevApp-unsigned.ipa
