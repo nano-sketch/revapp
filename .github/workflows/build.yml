@@ -34,7 +34,7 @@ jobs:
       - name: Build Unsigned App
         run: |
           xcodebuild -workspace ios/*.xcworkspace \
-            -scheme $(ls ios/*.xcworkspace | xargs basename -s .xcworkspace) \
+            -scheme RevApp \
             -configuration Release \
             -sdk iphoneos \
             -derivedDataPath build \
