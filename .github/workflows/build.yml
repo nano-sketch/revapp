@@ -40,6 +40,6 @@ jobs:
           EXPO_TOKEN: ${{ secrets.SOMETHING_HERE }}
 
       - name: �🚀 Trigger EAS iOS Build (cloud)
-        run: eas build --platform ios --profile preview --non-interactive --no-wait
+        run: eas build --platform ios --profile simulator --non-interactive --no-wait
         env:
           EXPO_TOKEN: ${{ secrets.SOMETHING_HERE }}
