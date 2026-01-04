@@ -23,12 +23,23 @@ jobs:
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
+          token: ${{ secrets.SOMETHING_HERE }}
 
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🚀 Trigger EAS iOS Build (cloud)
+      - name: � Check Token Configuration
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "❌ ERROR: EXPO_TOKEN secret is MISSING in GitHub Settings!"
+            exit 1
+          else
+            echo "✅ EXPO_TOKEN is present."
+          fi
+        env:
+          EXPO_TOKEN: ${{ secrets.SOMETHING_HERE }}
+
+      - name: �🚀 Trigger EAS iOS Build (cloud)
         run: eas build --platform ios --profile preview --non-interactive --no-wait
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_TOKEN: ${{ secrets.SOMETHING_HERE }}
